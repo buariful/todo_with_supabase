@@ -1,16 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storageKey: 'todo-app-auth',
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+// export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+//   auth: {
+//     persistSession: true,
+//     storageKey: 'todo-app-auth',
+//     autoRefreshToken: true,
+//     detectSessionInUrl: true,
+//   },
+// });
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface Todo {
   id: string;
@@ -26,8 +28,8 @@ export interface Database {
     Tables: {
       todos: {
         Row: Todo;
-        Insert: Omit<Todo, 'id' | 'created_at'>;
-        Update: Partial<Omit<Todo, 'id' | 'user_id' | 'created_at'>>;
+        Insert: Omit<Todo, "id" | "created_at">;
+        Update: Partial<Omit<Todo, "id" | "user_id" | "created_at">>;
       };
     };
   };

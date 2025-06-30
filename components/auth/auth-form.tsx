@@ -1,46 +1,59 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Mail, Lock } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { VerifyForm } from './verify-form';
+import { useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Mail, Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { VerifyForm } from "./verify-form";
+// import { useAuth } from '@/Context/use-auth';
+import { AuthContext } from "@/context/AuthContext";
+import { useAuth } from "@/context/useAuth";
+import { useRouter } from "next/navigation";
 
 export function AuthForm() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
   const [showVerify, setShowVerify] = useState(false);
-  const [verifyEmail, setVerifyEmail] = useState('');
+  const [verifyEmail, setVerifyEmail] = useState("");
+  const { isSubscriptionFetching, isSubscribed, user } = useAuth();
 
-  const handleAuth = async (type: 'login' | 'signup') => {
+  const router = useRouter();
+
+  const handleAuth = async (type: "login" | "signup") => {
     if (!email || !password) {
-      setMessage('Please fill in all fields');
+      setMessage("Please fill in all fields");
       return;
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
       let result;
-      if (type === 'signup') {
+      if (type === "signup") {
         result = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-          }
+          },
         });
-        
+
         if (result.error) throw result.error;
-        
+
         // Check if email confirmation is required
         if (result.data.user && !result.data.user.email_confirmed_at) {
           setVerifyEmail(email);
@@ -52,11 +65,11 @@ export function AuthForm() {
           email,
           password,
         });
-        
+
         if (result.error) throw result.error;
       }
     } catch (error: any) {
-      setMessage(error.message || 'An error occurred');
+      setMessage(error.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -64,11 +77,23 @@ export function AuthForm() {
 
   const handleBackToAuth = () => {
     setShowVerify(false);
-    setVerifyEmail('');
-    setEmail('');
-    setPassword('');
-    setMessage('');
+    setVerifyEmail("");
+    setEmail("");
+    setPassword("");
+    setMessage("");
   };
+
+  // if (showVerify) {
+  //   return <VerifyForm email={verifyEmail} onBack={handleBackToAuth} />;
+  // }
+
+  useEffect(() => {
+    if (showVerify) return; // Don't redirect if showing verify form
+    if (user && !isSubscribed && !isSubscriptionFetching) router.push("/plan");
+    else if (user && isSubscribed) router.push("/dashboard");
+
+    return () => {};
+  }, [isSubscribed, isSubscriptionFetching, router, showVerify, user]);
 
   if (showVerify) {
     return <VerifyForm email={verifyEmail} onBack={handleBackToAuth} />;
@@ -81,9 +106,7 @@ export function AuthForm() {
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Todo App
           </CardTitle>
-          <CardDescription>
-            Organize your tasks with style
-          </CardDescription>
+          <CardDescription>Organize your tasks with style</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -91,9 +114,15 @@ export function AuthForm() {
               <TabsTrigger value="login">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login">
-              <form onSubmit={(e) => { e.preventDefault(); handleAuth('login'); }} className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAuth("login");
+                }}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -109,7 +138,7 @@ export function AuthForm() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
@@ -125,9 +154,9 @@ export function AuthForm() {
                     />
                   </div>
                 </div>
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                   disabled={loading}
                 >
@@ -136,9 +165,15 @@ export function AuthForm() {
                 </Button>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="signup">
-              <form onSubmit={(e) => { e.preventDefault(); handleAuth('signup'); }} className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAuth("signup");
+                }}
+                className="space-y-4"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <div className="relative">
@@ -154,7 +189,7 @@ export function AuthForm() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
                   <div className="relative">
@@ -170,26 +205,30 @@ export function AuthForm() {
                     />
                   </div>
                 </div>
-                
-                <Button 
-                  type="submit" 
+
+                <Button
+                  type="submit"
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  disabled={loading}
+                  disabled={loading || isSubscriptionFetching}
                 >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {(loading || isSubscriptionFetching) && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Sign Up
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
-          
+
           {message && (
-            <div className={cn(
-              "mt-4 p-3 rounded-md text-sm text-center",
-              message.includes('error') || message.includes('Error')
-                ? "bg-red-50 text-red-700 border border-red-200"
-                : "bg-green-50 text-green-700 border border-green-200"
-            )}>
+            <div
+              className={cn(
+                "mt-4 p-3 rounded-md text-sm text-center",
+                message.includes("error") || message.includes("Error")
+                  ? "bg-red-50 text-red-700 border border-red-200"
+                  : "bg-green-50 text-green-700 border border-green-200"
+              )}
+            >
               {message}
             </div>
           )}
