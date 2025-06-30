@@ -44,6 +44,15 @@ export interface LemonSqueezyProduct {
 export interface PlanDetails extends LemonSqueezyVariant {
   checkout_url: string; // We'll add this manually based on your provided links
   product_details?: LemonSqueezyProduct; // To store fetched product name
+  features: any[];
+  id: string;
+  interval: string;
+  name: string;
+  price: number;
+  product_description: string;
+  product_id: string;
+  store_id: string;
+  variant_id: string;
 }
 
 // export interface UserSubscription {

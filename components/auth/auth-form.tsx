@@ -44,15 +44,38 @@ export function AuthForm() {
     try {
       let result;
       if (type === "signup") {
-        result = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-          },
-        });
+        // result = await supabase.auth.signUp({
+        //   email,
+        //   password,
+        //   options: {
+        //     emailRedirectTo: window.location.origin,
+        //   },
+        // });
 
-        if (result.error) throw result.error;
+        // if (result.error) throw result.error;
+
+        const { data: authData, error: authError } = await supabase.auth.signUp(
+          {
+            email,
+            password,
+            options: {
+              emailRedirectTo: window.location.origin,
+            },
+          }
+        );
+        result = { data: authData, error: authError };
+        if (authError || !authData.user) {
+          setLoading(false);
+          throw authError;
+        }
+
+        const { error: profileError } = await supabase
+          .from("user_profile")
+          .insert({
+            user_id: authData.user.id,
+            email,
+            role: "user",
+          });
 
         // Check if email confirmation is required
         if (result.data.user && !result.data.user.email_confirmed_at) {
@@ -89,8 +112,13 @@ export function AuthForm() {
 
   useEffect(() => {
     if (showVerify) return; // Don't redirect if showing verify form
-    if (user && !isSubscribed && !isSubscriptionFetching) router.push("/plan");
-    else if (user && isSubscribed) router.push("/dashboard");
+    if (user && !isSubscribed && !isSubscriptionFetching) {
+      console.log("user && !isSubscribed && !isSubscriptionFetching");
+      router.push("/plan");
+    } else if (user && isSubscribed) {
+      console.log("user && isSubscribed->>");
+      router.push("/dashboard");
+    }
 
     return () => {};
   }, [isSubscribed, isSubscriptionFetching, router, showVerify, user]);

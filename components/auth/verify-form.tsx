@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Loader2, Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface VerifyFormProps {
   email: string;
@@ -15,33 +21,33 @@ interface VerifyFormProps {
 }
 
 export function VerifyForm({ email, onBack }: VerifyFormProps) {
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [resending, setResending] = useState(false);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) {
-      setMessage('Please enter the verification code');
+      setMessage("Please enter the verification code");
       return;
     }
 
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: code.trim(),
-        type: 'signup'
+        type: "signup",
       });
 
       if (error) throw error;
 
-      setMessage('Email verified successfully! You can now use the app.');
+      setMessage("Email verified successfully! You can now use the app.");
     } catch (error: any) {
-      setMessage(error.message || 'Invalid verification code');
+      setMessage(error.message || "Invalid verification code");
     } finally {
       setLoading(false);
     }
@@ -49,18 +55,18 @@ export function VerifyForm({ email, onBack }: VerifyFormProps) {
 
   const handleResendCode = async () => {
     setResending(true);
-    setMessage('');
+    setMessage("");
 
     try {
       const { error } = await supabase.auth.resend({
-        type: 'signup',
+        type: "signup",
         email,
       });
 
       if (error) throw error;
-      setMessage('Verification code sent! Check your email.');
+      setMessage("Verification code sent! Check your email.");
     } catch (error: any) {
-      setMessage(error.message || 'Failed to resend code');
+      setMessage(error.message || "Failed to resend code");
     } finally {
       setResending(false);
     }
@@ -79,11 +85,12 @@ export function VerifyForm({ email, onBack }: VerifyFormProps) {
             Verify Your Email
           </CardTitle>
           <CardDescription className="text-center">
-            We've sent a verification code to<br />
+            We've sent a verification code to
+            <br />
             <span className="font-medium text-gray-700">{email}</span>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        {/* <CardContent>
           <form onSubmit={handleVerify} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="code">Verification Code</Label>
@@ -150,7 +157,7 @@ export function VerifyForm({ email, onBack }: VerifyFormProps) {
               {message}
             </div>
           )}
-        </CardContent>
+        </CardContent> */}
       </Card>
     </div>
   );

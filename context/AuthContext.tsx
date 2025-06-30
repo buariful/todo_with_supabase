@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 interface AuthContextType {
   session: Session | null;
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isInitializing: boolean; // Renamed from 'loading'
   logout: () => Promise<void>;
   subscription: UserSubscription | null;
@@ -55,11 +56,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const result = await getUserSubscription(currentUserId!);
       setSubscription(result?.subscription);
 
-      if (!result.subscription) {
-        router.push("/plan");
-      } else {
-        router.push("/dashboard");
-      }
+      // if (!result.subscription) {
+      //   router.push("/plan");
+      // } else {
+      //   router.push("/dashboard");
+      // }
     } catch (e) {
       console.error("AuthContext: Exception fetching subscription:", e);
       setSubscription(null);
@@ -147,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const value = {
     session,
     user,
+    setUser,
     isInitializing,
     logout,
     subscription,
