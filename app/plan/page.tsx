@@ -60,8 +60,22 @@ export default function BillingPage() {
       setErrorLoadingPlans(null);
       try {
         const plans = await getPlans();
-        console.log(plans);
-        setPlans(plans as PlanDetails[]);
+        // Map LemonSqueezyPlan[] to PlanDetails[]
+        const mappedPlans: PlanDetails[] = plans.map((plan: any) => ({
+          ...plan,
+          features: plan.features || [],
+          store_id: String(plan.store_id),
+          variant_id: String(plan.variant_id),
+          type: "variants",
+          interval: plan.interval,
+          name: plan.name,
+          price: plan.price,
+          product_description: plan.product_description,
+          product_id: String(plan.product_id),
+          id: String(plan.id),
+          checkout_url: plan.checkout_url,
+        }));
+        setPlans(mappedPlans);
       } catch (err: any) {
         setErrorLoadingPlans(
           err.message || "Failed to load subscription plans."
@@ -281,7 +295,8 @@ export default function BillingPage() {
                   )} */}
                   </CardContent>
                   <CardFooter>
-                    {isSubscribed && subscription?.variant_id === plan.id ? (
+                    {isSubscribed &&
+                    String(subscription?.variant_id) === String(plan.id) ? (
                       <Button
                         disabled
                         className="w-full bg-green-500 hover:bg-green-600"
