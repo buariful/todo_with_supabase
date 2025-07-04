@@ -85,7 +85,7 @@ export function VerifyForm({ email, onBack }: VerifyFormProps) {
             Verify Your Email
           </CardTitle>
           <CardDescription className="text-center">
-            We've sent a verification code to
+            We have sent a verification code to
             <br />
             <span className="font-medium text-gray-700">{email}</span>
           </CardDescription>
